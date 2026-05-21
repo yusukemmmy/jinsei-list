@@ -255,6 +255,25 @@ export function ItemCard({
     await onUpdate(item.id, { status: next })
   }
 
+  const actionButtons = (
+    <>
+      <button
+        onClick={() => setEditing(true)}
+        className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+      >
+        編集
+      </button>
+      <button
+        onClick={() => {
+          if (confirm('削除しますか？')) onDelete(item.id)
+        }}
+        className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+      >
+        削除
+      </button>
+    </>
+  )
+
   return (
     <article className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5">
       <div className="flex items-start gap-3">
@@ -309,22 +328,13 @@ export function ItemCard({
           )}
         </div>
 
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity shrink-0">
-          <button
-            onClick={() => setEditing(true)}
-            className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
-          >
-            編集
-          </button>
-          <button
-            onClick={() => {
-              if (confirm('削除しますか？')) onDelete(item.id)
-            }}
-            className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
-          >
-            削除
-          </button>
+        <div className="hidden sm:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          {actionButtons}
         </div>
+      </div>
+
+      <div className="flex gap-1 mt-2.5 ml-8 sm:hidden">
+        {actionButtons}
       </div>
     </article>
   )
