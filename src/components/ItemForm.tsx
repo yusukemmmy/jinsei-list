@@ -222,6 +222,27 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
   )
 }
 
+function IconEdit() {
+  return (
+    <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 20h9" strokeLinecap="round" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function IconTrash() {
+  return (
+    <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M3 6h18" strokeLinecap="round" />
+      <path d="M8 6V4h8v2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 11v6" strokeLinecap="round" />
+      <path d="M14 11v6" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function ItemCard({
   item,
   onUpdate,
@@ -259,23 +280,29 @@ export function ItemCard({
     <>
       <button
         onClick={() => setEditing(true)}
-        className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
       >
+        <IconEdit />
         編集
       </button>
       <button
         onClick={() => {
           if (confirm('削除しますか？')) onDelete(item.id)
         }}
-        className="text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
       >
+        <IconTrash />
         削除
       </button>
     </>
   )
 
   return (
-    <article className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5">
+    <article className="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5">
+      <div className="absolute top-4 right-4 z-10 flex gap-1 sm:hidden">
+        {actionButtons}
+      </div>
+
       <div className="flex items-start gap-3">
         <button
           onClick={cycleStatus}
@@ -289,7 +316,7 @@ export function ItemCard({
           }`}
         />
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pr-16 sm:pr-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>
               {meta.label}
@@ -331,10 +358,6 @@ export function ItemCard({
         <div className="hidden sm:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
           {actionButtons}
         </div>
-      </div>
-
-      <div className="flex gap-1 mt-2.5 ml-8 sm:hidden">
-        {actionButtons}
       </div>
     </article>
   )
