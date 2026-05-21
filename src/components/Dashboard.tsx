@@ -3,6 +3,7 @@ import type { Category, Item, ItemInsert } from '../types/item'
 import { splitAndSortItems } from '../lib/sortItems'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
+import { Modal } from './Modal'
 import { ItemForm, ItemSection } from './ItemForm'
 import type { User } from '@supabase/supabase-js'
 
@@ -29,6 +30,7 @@ export function Dashboard({
 }: DashboardProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>()
@@ -61,11 +63,26 @@ export function Dashboard({
 
   return (
     <div className="min-h-dvh">
-      <Header user={user} itemCount={items.length} onSignOut={onSignOut} />
+      <Header
+        user={user}
+        itemCount={items.length}
+        onSignOut={onSignOut}
+        onAddClick={() => setShowAddModal(true)}
+      />
+
+      <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="新規追加">
+        <ItemForm
+          embedded
+          onCancel={() => setShowAddModal(false)}
+          onSubmit={async (data) => {
+            const result = await onAdd(data)
+            if (!result?.error) setShowAddModal(false)
+            return result
+          }}
+        />
+      </Modal>
 
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-        <ItemForm onSubmit={onAdd} />
-
         <FilterBar
           selectedCategory={selectedCategory}
           selectedTag={selectedTag}
@@ -86,7 +103,7 @@ export function Dashboard({
           <div className="text-center py-12">
             <p className="text-[var(--color-text-muted)]">
               {items.length === 0
-                ? 'まだアイテムがありません。上のフォームから追加してみましょう。'
+                ? 'まだアイテムがありません。「＋ 追加」ボタンから登録してみましょう。'
                 : 'フィルタに一致するアイテムがありません。'}
             </p>
           </div>

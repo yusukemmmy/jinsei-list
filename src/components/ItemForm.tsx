@@ -17,9 +17,10 @@ interface ItemFormProps {
   onSubmit: (data: ItemFormData) => Promise<{ error?: string } | void>
   initial?: Item
   onCancel?: () => void
+  embedded?: boolean
 }
 
-export function ItemForm({ onSubmit, initial, onCancel }: ItemFormProps) {
+export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: ItemFormProps) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [category, setCategory] = useState<Category>(initial?.category ?? 'daily')
   const [tagsInput, setTagsInput] = useState(initial ? formatTags(initial.tags) : '')
@@ -65,7 +66,14 @@ export function ItemForm({ onSubmit, initial, onCancel }: ItemFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5 space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className={
+        embedded
+          ? 'space-y-4'
+          : 'rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5 space-y-4'
+      }
+    >
       <div>
         <label htmlFor="item-title" className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
           タイトル（必須）
