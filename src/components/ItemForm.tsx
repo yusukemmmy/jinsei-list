@@ -265,7 +265,7 @@ export function ItemCard({
             item.status === 'done'
               ? 'bg-[var(--color-daily)] border-[var(--color-daily)]'
               : item.status === 'in_progress'
-                ? 'border-[var(--color-event)] bg-[var(--color-event-bg)]'
+                ? 'border-[var(--color-daily)] bg-[var(--color-daily-bg)]'
                 : 'border-[var(--color-border)] hover:border-gray-400'
           }`}
         />
