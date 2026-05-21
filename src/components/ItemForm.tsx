@@ -316,7 +316,7 @@ export function ItemCard({
           }`}
         />
 
-        <div className="flex-1 min-w-0 pr-16 sm:pr-0">
+        <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>
               {meta.label}
