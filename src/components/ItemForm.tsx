@@ -280,7 +280,7 @@ export function ItemCard({
     <>
       <button
         onClick={() => setEditing(true)}
-        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+        className="inline-flex items-center gap-1 text-xs px-0 sm:px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
       >
         <IconEdit />
         編集
@@ -289,7 +289,7 @@ export function ItemCard({
         onClick={() => {
           if (confirm('削除しますか？')) onDelete(item.id)
         }}
-        className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+        className="inline-flex items-center gap-1 text-xs px-0 sm:px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
       >
         <IconTrash />
         削除
