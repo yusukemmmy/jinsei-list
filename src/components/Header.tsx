@@ -12,7 +12,7 @@ export function Header({ user, itemCount, onSignOut, onAddClick }: HeaderProps) 
   const name = user.user_metadata?.full_name ?? user.email
 
   return (
-    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm">
       <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-bold">人生リスト</h1>

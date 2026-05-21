@@ -299,7 +299,7 @@ export function ItemCard({
 
   return (
     <article className="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5">
-      <div className="absolute top-4 right-4 z-10 flex gap-1 sm:hidden">
+      <div className="absolute top-4 right-4 flex gap-1 sm:hidden">
         {actionButtons}
       </div>
 
