@@ -72,7 +72,6 @@ export function Dashboard({
         itemCount={items.length}
         onSignOut={onSignOut}
         onAddClick={() => setShowAddModal(true)}
-        onChatClick={() => chat.setOpen(true)}
       />
 
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="新規追加">
