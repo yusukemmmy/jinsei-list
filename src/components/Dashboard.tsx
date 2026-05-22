@@ -6,6 +6,8 @@ import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { Modal } from './Modal'
 import { ItemForm, ItemSection } from './ItemForm'
+import { ChatFab, ChatPanel } from './ChatPanel'
+import { useChat } from '../hooks/useChat'
 import type { User } from '@supabase/supabase-js'
 
 interface DashboardProps {
@@ -32,6 +34,7 @@ export function Dashboard({
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const chat = useChat(items)
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>()
@@ -69,6 +72,7 @@ export function Dashboard({
         itemCount={items.length}
         onSignOut={onSignOut}
         onAddClick={() => setShowAddModal(true)}
+        onChatClick={() => chat.setOpen(true)}
       />
 
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="新規追加">
@@ -135,6 +139,17 @@ export function Dashboard({
           </div>
         )}
       </main>
+
+      <ChatFab onClick={() => chat.setOpen(true)} hidden={chat.open} />
+      <ChatPanel
+        open={chat.open}
+        onClose={() => chat.setOpen(false)}
+        messages={chat.messages}
+        loading={chat.loading}
+        error={chat.error}
+        onSend={chat.send}
+        onClearError={chat.clearError}
+      />
     </div>
   )
 }
