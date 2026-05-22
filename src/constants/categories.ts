@@ -1,8 +1,8 @@
 import type { Category, Status } from '../types/item'
 
 export const CATEGORIES: { value: Category; label: string; color: string; bg: string }[] = [
-  { value: 'work', label: '仕事', color: 'text-[var(--color-work)]', bg: 'bg-[var(--color-work-bg)]' },
-  { value: 'daily', label: '日常', color: 'text-[var(--color-daily)]', bg: 'bg-[var(--color-daily-bg)]' },
+  { value: 'work', label: 'タクト', color: 'text-[var(--color-work)]', bg: 'bg-[var(--color-work-bg)]' },
+  { value: 'daily', label: '家', color: 'text-[var(--color-daily)]', bg: 'bg-[var(--color-daily-bg)]' },
   { value: 'event', label: 'イベント', color: 'text-[var(--color-event)]', bg: 'bg-[var(--color-event-bg)]' },
   { value: 'dream', label: '夢', color: 'text-[var(--color-dream)]', bg: 'bg-[var(--color-dream-bg)]' },
 ]

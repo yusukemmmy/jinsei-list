@@ -1,3 +1,4 @@
+import { CATEGORIES } from '../constants/categories'
 import { isSupabaseConfigured } from '../lib/supabase'
 
 interface LoginPageProps {
@@ -12,7 +13,7 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-3">人生リスト</h1>
           <p className="text-[var(--color-text-muted)] leading-relaxed">
-            仕事・日常・イベント・夢——<br />
+            タクト・家・イベント・夢——<br />
             今のあなたの「やること」「やりたいこと」を<br />
             一箇所に集めて見渡す
           </p>
@@ -45,13 +46,8 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
         )}
 
         <div className="mt-10 grid grid-cols-2 gap-3 text-left">
-          {[
-            { label: '仕事', color: 'bg-[var(--color-work-bg)] text-[var(--color-work)]' },
-            { label: '日常', color: 'bg-[var(--color-daily-bg)] text-[var(--color-daily)]' },
-            { label: 'イベント', color: 'bg-[var(--color-event-bg)] text-[var(--color-event)]' },
-            { label: '夢', color: 'bg-[var(--color-dream-bg)] text-[var(--color-dream)]' },
-          ].map(({ label, color }) => (
-            <div key={label} className={`rounded-xl px-4 py-3 text-sm font-medium ${color}`}>
+          {CATEGORIES.map(({ value, label, bg, color }) => (
+            <div key={value} className={`rounded-xl px-4 py-3 text-sm font-medium ${bg} ${color}`}>
               {label}
             </div>
           ))}

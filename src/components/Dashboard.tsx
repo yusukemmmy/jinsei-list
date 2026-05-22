@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Category, Item, ItemInsert } from '../types/item'
+import { CATEGORIES } from '../constants/categories'
 import { splitAndSortItems } from '../lib/sortItems'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
@@ -112,10 +113,9 @@ export function Dashboard({
             {selectedCategory === 'all' && (
               <p className="text-xs text-[var(--color-text-muted)]">
                 {filtered.length} 件表示
-                {counts.work ? ` · 仕事 ${counts.work}` : ''}
-                {counts.daily ? ` · 日常 ${counts.daily}` : ''}
-                {counts.event ? ` · イベント ${counts.event}` : ''}
-                {counts.dream ? ` · 夢 ${counts.dream}` : ''}
+                {CATEGORIES.filter((c) => counts[c.value]).map(
+                  (c) => ` · ${c.label} ${counts[c.value]}`,
+                ).join('')}
               </p>
             )}
 
