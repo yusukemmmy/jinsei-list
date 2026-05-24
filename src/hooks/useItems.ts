@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { applyArchiveUpdates } from '../lib/archiveItems'
 import type { Item, ItemInsert, ItemUpdate } from '../types/item'
 
 function friendlyError(message: string): string {
   if (
+    message.includes('completed_at') ||
     message.includes('urgency') ||
     message.includes('deadline') ||
     message.includes('schema cache')
   ) {
-    return 'データベースの更新が必要です。Supabase の SQL Editor で supabase/migration_add_urgency_deadline.sql を実行してください。'
+    return 'データベースの更新が必要です。Supabase の SQL Editor で supabase/migration_add_completed_at.sql を実行してください。'
   }
   return message
 }
@@ -68,9 +70,12 @@ export function useItems(userId: string | undefined) {
   const updateItem = async (id: string, updates: ItemUpdate) => {
     if (!supabase) return { error: 'Not configured' }
 
+    const current = items.find((i) => i.id === id)
+    const finalUpdates = applyArchiveUpdates(current, updates)
+
     const { data, error } = await supabase
       .from('items')
-      .update(updates)
+      .update(finalUpdates)
       .eq('id', id)
       .select()
       .single()

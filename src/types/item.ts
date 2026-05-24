@@ -12,9 +12,10 @@ export interface Item {
   status: Status
   urgency: Urgency | null
   deadline: string | null
+  completed_at: string | null
   created_at: string
   updated_at: string
 }
 
 export type ItemInsert = Pick<Item, 'title' | 'category' | 'tags' | 'note' | 'status' | 'urgency' | 'deadline'>
-export type ItemUpdate = Partial<ItemInsert>
+export type ItemUpdate = Partial<ItemInsert & Pick<Item, 'completed_at'>>

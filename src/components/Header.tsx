@@ -3,11 +3,22 @@ import type { User } from '@supabase/supabase-js'
 interface HeaderProps {
   user: User
   itemCount: number
+  archivedCount?: number
   onSignOut: () => void
   onAddClick: () => void
+  onArchiveClick?: () => void
+  showArchiveButton?: boolean
 }
 
-export function Header({ user, itemCount, onSignOut, onAddClick }: HeaderProps) {
+export function Header({
+  user,
+  itemCount,
+  archivedCount = 0,
+  onSignOut,
+  onAddClick,
+  onArchiveClick,
+  showArchiveButton = true,
+}: HeaderProps) {
   const avatarUrl = user.user_metadata?.avatar_url
   const name = user.user_metadata?.full_name ?? user.email
 
@@ -19,6 +30,15 @@ export function Header({ user, itemCount, onSignOut, onAddClick }: HeaderProps) 
           <p className="text-xs text-[var(--color-text-muted)]">{itemCount} 件</p>
         </div>
         <div className="flex items-center gap-3">
+          {showArchiveButton && onArchiveClick && (
+            <button
+              type="button"
+              onClick={onArchiveClick}
+              className="text-sm px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer shrink-0"
+            >
+              アーカイブ{archivedCount > 0 ? ` ${archivedCount}` : ''}
+            </button>
+          )}
           <button
             type="button"
             onClick={onAddClick}

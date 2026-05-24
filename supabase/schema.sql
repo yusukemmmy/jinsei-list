@@ -11,6 +11,7 @@ create table public.items (
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
   urgency text check (urgency in ('asap', 'soon', 'someday', 'lifetime')),
   deadline date,
+  completed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -18,6 +19,7 @@ create table public.items (
 create index items_user_id_idx on public.items (user_id);
 create index items_category_idx on public.items (category);
 create index items_deadline_idx on public.items (deadline);
+create index items_completed_at_idx on public.items (completed_at);
 
 alter table public.items enable row level security;
 
