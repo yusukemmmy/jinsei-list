@@ -5,7 +5,7 @@ create table public.items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   title text not null,
-  category text not null check (category in ('work', 'daily', 'event', 'dream')),
+  category text not null check (category in ('work', 'daily', 'self', 'event', 'dream')),
   tags text[] not null default '{}',
   note text,
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),

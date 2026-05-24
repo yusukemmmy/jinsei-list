@@ -1,4 +1,4 @@
-export type Category = 'work' | 'daily' | 'event' | 'dream'
+export type Category = 'work' | 'daily' | 'self' | 'event' | 'dream'
 export type Status = 'todo' | 'in_progress' | 'done'
 export type Urgency = 'asap' | 'soon' | 'someday' | 'lifetime'
 

@@ -13,7 +13,7 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight mb-3">人生リスト</h1>
           <p className="text-[var(--color-text-muted)] leading-relaxed">
-            タクト・家・イベント・夢——<br />
+            タクト・家・自分・イベント・夢——<br />
             今のあなたの「やること」「やりたいこと」を<br />
             一箇所に集めて見渡す
           </p>
