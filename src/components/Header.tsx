@@ -21,6 +21,7 @@ export function Header({
 }: HeaderProps) {
   const avatarUrl = user.user_metadata?.avatar_url
   const name = user.user_metadata?.full_name ?? user.email
+  const archiveLabel = archivedCount > 0 ? `アーカイブ（${archivedCount}件）` : 'アーカイブ'
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm">
@@ -29,22 +30,33 @@ export function Header({
           <h1 className="text-lg font-bold">人生リスト</h1>
           <p className="text-xs text-[var(--color-text-muted)]">{itemCount} 件</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {showArchiveButton && onArchiveClick && (
             <button
               type="button"
               onClick={onArchiveClick}
-              className="text-sm px-3 py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer shrink-0"
+              aria-label={archiveLabel}
+              className="relative text-sm p-2 sm:px-3 sm:py-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer shrink-0"
             >
-              アーカイブ{archivedCount > 0 ? ` ${archivedCount}` : ''}
+              <IconArchive className="w-5 h-5 sm:hidden" />
+              <span className="hidden sm:inline">
+                アーカイブ{archivedCount > 0 ? ` ${archivedCount}` : ''}
+              </span>
+              {archivedCount > 0 && (
+                <span className="sm:hidden absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-[var(--color-text)] text-white text-[10px] leading-4 text-center font-medium">
+                  {archivedCount}
+                </span>
+              )}
             </button>
           )}
           <button
             type="button"
             onClick={onAddClick}
-            className="text-sm px-4 py-2 rounded-lg bg-[var(--color-text)] text-white font-medium hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+            aria-label="追加"
+            className="text-sm p-2 sm:px-4 sm:py-2 rounded-lg bg-[var(--color-text)] text-white font-medium hover:opacity-90 transition-opacity cursor-pointer shrink-0"
           >
-            ＋ 追加
+            <IconPlus className="w-5 h-5 sm:hidden" />
+            <span className="hidden sm:inline">＋ 追加</span>
           </button>
           <div className="flex items-center gap-2 min-w-0">
             {avatarUrl && (
@@ -55,13 +67,45 @@ export function Header({
             </span>
           </div>
           <button
+            type="button"
             onClick={onSignOut}
-            className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer"
+            aria-label="ログアウト"
+            className="p-2 sm:p-0 text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer shrink-0"
           >
-            ログアウト
+            <IconLogOut className="w-5 h-5 sm:hidden" />
+            <span className="hidden sm:inline text-xs">ログアウト</span>
           </button>
         </div>
       </div>
     </header>
+  )
+}
+
+function IconArchive({ className = 'w-5 h-5 shrink-0' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M21 8v13H3V8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M1 3h22v5H1V3Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 12h4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconPlus({ className = 'w-5 h-5 shrink-0' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 5v14" strokeLinecap="round" />
+      <path d="M5 12h14" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconLogOut({ className = 'w-5 h-5 shrink-0' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 17l5-5-5-5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M21 12H9" strokeLinecap="round" />
+    </svg>
   )
 }
