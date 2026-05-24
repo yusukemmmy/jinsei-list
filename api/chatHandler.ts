@@ -77,7 +77,6 @@ export async function handleChatRequest(
     weekday: 'long',
   })
 
-  const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash-lite'
   const systemText = `${SYSTEM_PROMPT}\n\n今日の日付: ${today}\n\nユーザーのリスト:\n${context?.trim() || '（未完了のアイテムはありません）'}`
 
   const contents: { role: string; parts: { text: string }[] }[] = []
@@ -97,8 +96,52 @@ export async function handleChatRequest(
     parts: [{ text: message.trim() }],
   })
 
-  const geminiRes = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+  const modelCandidates = [
+    process.env.GEMINI_MODEL,
+    'gemini-2.5-flash-lite',
+    'gemini-2.5-flash',
+  ].filter((value, index, array): value is string => Boolean(value) && array.indexOf(value) === index)
+
+  let lastErrorText = ''
+
+  for (const model of modelCandidates) {
+    const geminiRes = await callGemini(model, geminiKey, systemText, contents)
+
+    if (geminiRes.ok) {
+      const data = (await geminiRes.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[]
+      }
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+
+      if (reply) {
+        return { status: 200, body: { reply } }
+      }
+
+      lastErrorText = 'empty response'
+      continue
+    }
+
+    lastErrorText = await geminiRes.text()
+    console.error(`Gemini API error (${model}):`, lastErrorText)
+
+    const shouldRetryModel = isRetryableGeminiError(lastErrorText)
+    if (!shouldRetryModel) break
+  }
+
+  return {
+    status: 502,
+    body: { error: toUserFacingGeminiError(lastErrorText) },
+  }
+}
+
+async function callGemini(
+  model: string,
+  apiKey: string,
+  systemText: string,
+  contents: { role: string; parts: { text: string }[] }[],
+) {
+  return fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -112,23 +155,23 @@ export async function handleChatRequest(
       }),
     },
   )
+}
 
-  if (!geminiRes.ok) {
-    console.error('Gemini API error:', await geminiRes.text())
-    return {
-      status: 502,
-      body: { error: 'AIからの応答を取得できませんでした。しばらくしてからお試しください。' },
-    }
+function isRetryableGeminiError(errorText: string) {
+  return (
+    errorText.includes('"code": 503')
+    || errorText.includes('"code": 429')
+    || errorText.includes('UNAVAILABLE')
+    || errorText.includes('RESOURCE_EXHAUSTED')
+  )
+}
+
+function toUserFacingGeminiError(errorText: string) {
+  if (errorText.includes('"code": 503') || errorText.includes('UNAVAILABLE')) {
+    return 'AIが混み合っています。少し待ってからもう一度お試しください。'
   }
-
-  const data = (await geminiRes.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[]
+  if (errorText.includes('"code": 429') || errorText.includes('RESOURCE_EXHAUSTED')) {
+    return 'AIの利用上限に達しました。しばらくしてからお試しください。'
   }
-  const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
-
-  if (!reply) {
-    return { status: 502, body: { error: 'AIから応答がありませんでした。' } }
-  }
-
-  return { status: 200, body: { reply } }
+  return 'AIからの応答を取得できませんでした。しばらくしてからお試しください。'
 }
