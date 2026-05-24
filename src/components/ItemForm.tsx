@@ -22,7 +22,7 @@ interface ItemFormProps {
 
 export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: ItemFormProps) {
   const [title, setTitle] = useState(initial?.title ?? '')
-  const [category, setCategory] = useState<Category>(initial?.category ?? 'daily')
+  const [category, setCategory] = useState<Category>(initial?.category ?? 'self')
   const [tagsInput, setTagsInput] = useState(initial ? formatTags(initial.tags) : '')
   const [note, setNote] = useState(initial?.note ?? '')
   const [status, setStatus] = useState<Status>(initial?.status ?? 'todo')
@@ -57,6 +57,7 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
 
     if (!initial) {
       setTitle('')
+      setCategory('self')
       setTagsInput('')
       setNote('')
       setStatus('todo')
