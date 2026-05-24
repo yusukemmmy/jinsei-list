@@ -23,6 +23,22 @@ export function ChatPanel({
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const isComposingRef = useRef(false)
+  const lastCompositionEndRef = useRef(0)
+
+  const submitInput = () => {
+    if (!input.trim() || loading) return
+    onSend(input)
+    setInput('')
+  }
+
+  const isImeEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isComposingRef.current || e.nativeEvent.isComposing || e.keyCode === 229) {
+      return true
+    }
+    // macOS: 変換確定の Enter が compositionend の直後に来ることがある
+    return Date.now() - lastCompositionEndRef.current < 50
+  }
 
   useEffect(() => {
     if (open) {
@@ -47,17 +63,14 @@ export function ChatPanel({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || loading) return
-    onSend(input)
-    setInput('')
+    submitInput()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
+      if (isImeEnter(e)) return
       e.preventDefault()
-      if (!input.trim() || loading) return
-      onSend(input)
-      setInput('')
+      submitInput()
     }
   }
 
@@ -165,6 +178,11 @@ export function ChatPanel({
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onCompositionStart={() => { isComposingRef.current = true }}
+              onCompositionEnd={() => {
+                isComposingRef.current = false
+                lastCompositionEndRef.current = Date.now()
+              }}
               onKeyDown={handleKeyDown}
               placeholder="質問を入力…"
               rows={1}
