@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { applyArchiveUpdates } from '../lib/archiveItems'
+import { applyArchiveUpdates, isPendingDisposal } from '../lib/archiveItems'
 import type { Item, ItemInsert, ItemUpdate } from '../types/item'
 
 function friendlyError(message: string): string {
@@ -36,7 +36,20 @@ export function useItems(userId: string | undefined) {
     if (error) {
       setError(error.message)
     } else {
-      setItems(data ?? [])
+      const fetched = data ?? []
+      const staleDisposable = fetched.filter(isPendingDisposal)
+
+      if (staleDisposable.length > 0) {
+        await Promise.all(
+          staleDisposable.map((item) =>
+            supabase!.from('items').delete().eq('id', item.id),
+          ),
+        )
+        const staleIds = new Set(staleDisposable.map((item) => item.id))
+        setItems(fetched.filter((item) => !staleIds.has(item.id)))
+      } else {
+        setItems(fetched)
+      }
       setError(null)
     }
     setLoading(false)

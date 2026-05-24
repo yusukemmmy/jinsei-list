@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Category, Item, ItemInsert } from '../types/item'
 import { CATEGORIES } from '../constants/categories'
-import { isArchived } from '../lib/archiveItems'
+import { isArchived, isDisposableCategory, isHiddenFromList } from '../lib/archiveItems'
 import { splitAndSortItems } from '../lib/sortItems'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
 import { Modal } from './Modal'
 import { ItemForm, ItemSection } from './ItemForm'
 import { ArchiveView } from './ArchiveView'
+import { UndoToast } from './UndoToast'
 import { ChatFab, ChatPanel } from './ChatPanel'
 import { useChat } from '../hooks/useChat'
+import { usePendingDisposal } from '../hooks/usePendingDisposal'
 import type { User } from '@supabase/supabase-js'
 
 type View = 'list' | 'archive'
@@ -41,8 +43,34 @@ export function Dashboard({
   const [view, setView] = useState<View>('list')
   const chat = useChat(items)
 
-  const activeItems = useMemo(() => items.filter((item) => !isArchived(item)), [items])
-  const archivedCount = items.length - activeItems.length
+  const { pending, scheduleDisposal, undoDisposal } = usePendingDisposal({
+    onDelete,
+    onUpdate,
+  })
+
+  const handleUpdate = useCallback(
+    async (id: string, updates: Partial<Item>) => {
+      const current = items.find((item) => item.id === id)
+      if (
+        current &&
+        updates.status === 'done' &&
+        isDisposableCategory(current.category) &&
+        current.status !== 'done'
+      ) {
+        const result = await onUpdate(id, { status: 'done' })
+        if (!result?.error) {
+          scheduleDisposal(current, current.status)
+        }
+        return result
+      }
+
+      return onUpdate(id, updates)
+    },
+    [items, onUpdate, scheduleDisposal],
+  )
+
+  const activeItems = useMemo(() => items.filter((item) => !isHiddenFromList(item)), [items])
+  const archivedCount = useMemo(() => items.filter(isArchived).length, [items])
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>()
@@ -145,14 +173,14 @@ export function Dashboard({
                 <ItemSection
                   title="期限あり"
                   items={withDeadline}
-                  onUpdate={onUpdate}
+                  onUpdate={handleUpdate}
                   onDelete={onDelete}
                 />
 
                 <ItemSection
                   title="期限なし"
                   items={withoutDeadline}
-                  onUpdate={onUpdate}
+                  onUpdate={handleUpdate}
                   onDelete={onDelete}
                 />
               </div>
@@ -163,6 +191,7 @@ export function Dashboard({
 
       {view === 'list' && (
         <>
+          <UndoToast pending={pending} onUndo={undoDisposal} />
           <ChatFab onClick={() => chat.setOpen(true)} hidden={chat.open} />
           <ChatPanel
             open={chat.open}

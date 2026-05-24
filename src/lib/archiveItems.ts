@@ -1,13 +1,26 @@
 import type { Category, Item, ItemUpdate } from '../types/item'
 
 export const ARCHIVABLE_CATEGORIES: Category[] = ['self', 'event', 'dream']
+export const DISPOSABLE_CATEGORIES: Category[] = ['work', 'daily']
 
 export function isArchivableCategory(category: Category): boolean {
   return ARCHIVABLE_CATEGORIES.includes(category)
 }
 
+export function isDisposableCategory(category: Category): boolean {
+  return DISPOSABLE_CATEGORIES.includes(category)
+}
+
 export function isArchived(item: Item): boolean {
   return isArchivableCategory(item.category) && item.status === 'done'
+}
+
+export function isPendingDisposal(item: Item): boolean {
+  return isDisposableCategory(item.category) && item.status === 'done'
+}
+
+export function isHiddenFromList(item: Item): boolean {
+  return isArchived(item) || isPendingDisposal(item)
 }
 
 export function getArchiveDate(item: Item): string {
