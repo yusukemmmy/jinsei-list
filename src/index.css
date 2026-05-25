@@ -31,3 +31,12 @@ body {
 #root {
   min-height: 100dvh;
 }
+
+/* iOS Safari: 16px 未満の入力欄フォーカス時に自動ズームされるのを防ぐ */
+@media (max-width: 639px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
