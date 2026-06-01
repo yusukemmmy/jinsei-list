@@ -44,7 +44,7 @@ export function ArchiveView({ items, onUpdate, onDelete, onBack }: ArchiveViewPr
         <div>
           <h2 className="text-base font-bold">アーカイブ</h2>
           <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            完了した「自分」「イベント」「夢」を日付順に振り返れます
+            完了した「やってみよう」「イベント」「夢」を日付順に振り返れます
           </p>
         </div>
         <button
