@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Category, ItemKind } from '../types/item'
 import { CATEGORIES } from '../constants/categories'
 import { ITEM_KINDS } from '../constants/kinds'
@@ -21,6 +22,8 @@ export function FilterBar({
   onCategoryChange,
   onTagChange,
 }: FilterBarProps) {
+  const [tagsOpen, setTagsOpen] = useState(false)
+
   return (
     <div className="space-y-3">
       <div>
@@ -66,25 +69,55 @@ export function FilterBar({
 
       {allTags.length > 0 && (
         <div>
-          <p className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5">タグ</p>
-          <div className="flex flex-wrap gap-1.5">
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => onTagChange(selectedTag === tag ? null : tag)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-colors cursor-pointer ${
-                  selectedTag === tag
-                    ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
-                    : 'border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-gray-400'
-                }`}
-              >
-                #{tag}
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => setTagsOpen((open) => !open)}
+            aria-expanded={tagsOpen}
+            className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-muted)] mb-1.5 cursor-pointer hover:text-[var(--color-text)] transition-colors"
+          >
+            <span>タグ</span>
+            <span className="font-normal">({allTags.length})</span>
+            {selectedTag && (
+              <span className="font-normal text-[var(--color-text)]">· #{selectedTag}</span>
+            )}
+            <ChevronIcon open={tagsOpen} />
+          </button>
+          {tagsOpen && (
+            <div className="flex flex-wrap gap-1.5">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => onTagChange(selectedTag === tag ? null : tag)}
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-colors cursor-pointer ${
+                    selectedTag === tag
+                      ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
+                      : 'border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-gray-400'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
+  )
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`w-3.5 h-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 

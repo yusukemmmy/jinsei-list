@@ -257,7 +257,7 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
 
 function IconEdit() {
   return (
-    <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg className="w-4 h-4 sm:w-3 sm:h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M12 20h9" strokeLinecap="round" />
       <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -266,7 +266,7 @@ function IconEdit() {
 
 function IconTrash() {
   return (
-    <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg className="w-4 h-4 sm:w-3 sm:h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M3 6h18" strokeLinecap="round" />
       <path d="M8 6V4h8v2" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" strokeLinecap="round" strokeLinejoin="round" />
@@ -313,20 +313,24 @@ export function ItemCard({
   const actionButtons = (
     <>
       <button
+        type="button"
         onClick={() => setEditing(true)}
-        className="inline-flex items-center gap-1 text-xs px-0 sm:px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
+        aria-label="編集"
+        className="inline-flex items-center gap-1 text-xs p-1.5 sm:px-2 sm:py-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-text)] cursor-pointer"
       >
         <IconEdit />
-        編集
+        <span className="hidden sm:inline">編集</span>
       </button>
       <button
+        type="button"
         onClick={() => {
           if (confirm('削除しますか？')) onDelete(item.id)
         }}
-        className="inline-flex items-center gap-1 text-xs px-0 sm:px-2 py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+        aria-label="削除"
+        className="inline-flex items-center gap-1 text-xs p-1.5 sm:px-2 sm:py-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
       >
         <IconTrash />
-        削除
+        <span className="hidden sm:inline">削除</span>
       </button>
     </>
   )
@@ -368,7 +372,7 @@ export function ItemCard({
                 {urgencyMeta.label}
               </span>
             )}
-            <span className="text-xs text-[var(--color-text-muted)]">
+            <span className="hidden sm:inline text-xs text-[var(--color-text-muted)]">
               {getStatusLabel(item.status)}
             </span>
           </div>
