@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import type { Category, Item, Status, Urgency } from '../types/item'
+import type { Category, Item, ItemKind, Status, Urgency } from '../types/item'
 import { CATEGORIES, STATUSES, getCategoryMeta, getStatusLabel, parseTags, formatTags } from '../constants/categories'
+import { ITEM_KINDS, getKindMeta } from '../constants/kinds'
 import { URGENCIES, formatDeadline, getUrgencyMeta } from '../constants/urgency'
 
 interface ItemFormData {
   title: string
   category: Category
+  kind: ItemKind
   tags: string[]
   note: string | null
   status: Status
@@ -22,6 +24,7 @@ interface ItemFormProps {
 
 export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: ItemFormProps) {
   const [title, setTitle] = useState(initial?.title ?? '')
+  const [kind, setKind] = useState<ItemKind>(initial?.kind ?? 'try')
   const [category, setCategory] = useState<Category>(initial?.category ?? 'self')
   const [tagsInput, setTagsInput] = useState(initial ? formatTags(initial.tags) : '')
   const [note, setNote] = useState(initial?.note ?? '')
@@ -42,6 +45,7 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
     const result = await onSubmit({
       title: title.trim(),
       category,
+      kind,
       tags: parseTags(tagsInput),
       note: note.trim() || null,
       status,
@@ -57,6 +61,7 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
 
     if (!initial) {
       setTitle('')
+      setKind('try')
       setCategory('self')
       setTagsInput('')
       setNote('')
@@ -90,21 +95,48 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {CATEGORIES.map(({ value, label, bg, color }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setCategory(value)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-              category === value
-                ? `${bg} ${color} border-transparent font-medium`
-                : 'border-[var(--color-border)] text-[var(--color-text-muted)]'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      <div>
+        <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
+          種類
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {ITEM_KINDS.map(({ value, label, bg, color }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setKind(value)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                kind === value
+                  ? `${bg} ${color} border-transparent font-medium`
+                  : 'border-[var(--color-border)] text-[var(--color-text-muted)]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
+          カテゴリー
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map(({ value, label, bg, color }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setCategory(value)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                category === value
+                  ? `${bg} ${color} border-transparent font-medium`
+                  : 'border-[var(--color-border)] text-[var(--color-text-muted)]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -254,7 +286,8 @@ export function ItemCard({
   onDelete: (id: string) => Promise<void>
 }) {
   const [editing, setEditing] = useState(false)
-  const meta = getCategoryMeta(item.category)
+  const kindMeta = getKindMeta(item.kind)
+  const categoryMeta = getCategoryMeta(item.category)
   const urgencyMeta = item.urgency ? getUrgencyMeta(item.urgency) : null
 
   if (editing) {
@@ -319,8 +352,11 @@ export function ItemCard({
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>
-              {meta.label}
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${kindMeta.bg} ${kindMeta.color}`}>
+              {kindMeta.label}
+            </span>
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryMeta.bg} ${categoryMeta.color}`}>
+              {categoryMeta.label}
             </span>
             {item.deadline && (
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-50 text-orange-700">

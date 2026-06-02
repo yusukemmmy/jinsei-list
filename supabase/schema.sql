@@ -5,7 +5,8 @@ create table public.items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   title text not null,
-  category text not null check (category in ('work', 'daily', 'self', 'event', 'dream')),
+  category text not null check (category in ('work', 'daily', 'self')),
+  kind text not null default 'must' check (kind in ('must', 'try', 'dream')),
   tags text[] not null default '{}',
   note text,
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
@@ -18,6 +19,7 @@ create table public.items (
 
 create index items_user_id_idx on public.items (user_id);
 create index items_category_idx on public.items (category);
+create index items_kind_idx on public.items (kind);
 create index items_deadline_idx on public.items (deadline);
 create index items_completed_at_idx on public.items (completed_at);
 

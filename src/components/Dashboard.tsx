@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { Category, Item, ItemInsert } from '../types/item'
+import type { Category, Item, ItemInsert, ItemKind } from '../types/item'
 import { CATEGORIES } from '../constants/categories'
-import { isArchived, isDisposableCategory, isHiddenFromList } from '../lib/archiveItems'
+import { ITEM_KINDS } from '../constants/kinds'
+import { isArchived, isDisposableKind, isHiddenFromList } from '../lib/archiveItems'
 import { splitAndSortItems } from '../lib/sortItems'
 import { Header } from './Header'
 import { FilterBar } from './FilterBar'
@@ -37,6 +38,7 @@ export function Dashboard({
   onUpdate,
   onDelete,
 }: DashboardProps) {
+  const [selectedKind, setSelectedKind] = useState<ItemKind | 'all'>('all')
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -54,7 +56,7 @@ export function Dashboard({
       if (
         current &&
         updates.status === 'done' &&
-        isDisposableCategory(current.category) &&
+        isDisposableKind(current.kind) &&
         current.status !== 'done'
       ) {
         const result = await onUpdate(id, { status: 'done' })
@@ -80,19 +82,28 @@ export function Dashboard({
 
   const filtered = useMemo(() => {
     return activeItems.filter((item) => {
+      if (selectedKind !== 'all' && item.kind !== selectedKind) return false
       if (selectedCategory !== 'all' && item.category !== selectedCategory) return false
       if (selectedTag && !item.tags.includes(selectedTag)) return false
       return true
     })
-  }, [activeItems, selectedCategory, selectedTag])
+  }, [activeItems, selectedKind, selectedCategory, selectedTag])
 
   const { withDeadline, withoutDeadline } = useMemo(
     () => splitAndSortItems(filtered),
     [filtered],
   )
 
-  const counts = useMemo(() => {
-    const map: Record<string, number> = { all: activeItems.length }
+  const kindCounts = useMemo(() => {
+    const map: Record<string, number> = {}
+    activeItems.forEach((item) => {
+      map[item.kind] = (map[item.kind] ?? 0) + 1
+    })
+    return map
+  }, [activeItems])
+
+  const categoryCounts = useMemo(() => {
+    const map: Record<string, number> = {}
     activeItems.forEach((item) => {
       map[item.category] = (map[item.category] ?? 0) + 1
     })
@@ -136,9 +147,11 @@ export function Dashboard({
         ) : (
           <>
             <FilterBar
+              selectedKind={selectedKind}
               selectedCategory={selectedCategory}
               selectedTag={selectedTag}
               allTags={allTags}
+              onKindChange={setSelectedKind}
               onCategoryChange={setSelectedCategory}
               onTagChange={setSelectedTag}
             />
@@ -161,11 +174,14 @@ export function Dashboard({
               </div>
             ) : (
               <div className="space-y-8">
-                {selectedCategory === 'all' && (
+                {selectedKind === 'all' && selectedCategory === 'all' && (
                   <p className="text-xs text-[var(--color-text-muted)]">
                     {filtered.length} 件表示
-                    {CATEGORIES.filter((c) => counts[c.value]).map(
-                      (c) => ` · ${c.label} ${counts[c.value]}`,
+                    {ITEM_KINDS.filter((k) => kindCounts[k.value]).map(
+                      (k) => ` · ${k.label} ${kindCounts[k.value]}`,
+                    ).join('')}
+                    {CATEGORIES.filter((c) => categoryCounts[c.value]).map(
+                      (c) => ` · ${c.label} ${categoryCounts[c.value]}`,
                     ).join('')}
                   </p>
                 )}

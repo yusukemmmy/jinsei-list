@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import type { Category, Item } from '../types/item'
-import { CATEGORIES, getCategoryMeta } from '../constants/categories'
+import type { Item, ItemKind } from '../types/item'
+import { getCategoryMeta } from '../constants/categories'
+import { ITEM_KINDS, getKindMeta } from '../constants/kinds'
 import {
-  ARCHIVABLE_CATEGORIES,
+  ARCHIVABLE_KINDS,
   formatArchiveDate,
   formatArchiveMonth,
   groupArchivedByDate,
@@ -17,21 +18,21 @@ interface ArchiveViewProps {
 }
 
 export function ArchiveView({ items, onUpdate, onDelete, onBack }: ArchiveViewProps) {
-  const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
+  const [selectedKind, setSelectedKind] = useState<ItemKind | 'all'>('all')
 
   const archivedItems = useMemo(() => items.filter(isArchived), [items])
 
   const filtered = useMemo(() => {
-    if (selectedCategory === 'all') return archivedItems
-    return archivedItems.filter((item) => item.category === selectedCategory)
-  }, [archivedItems, selectedCategory])
+    if (selectedKind === 'all') return archivedItems
+    return archivedItems.filter((item) => item.kind === selectedKind)
+  }, [archivedItems, selectedKind])
 
   const grouped = useMemo(() => groupArchivedByDate(filtered), [filtered])
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: archivedItems.length }
     archivedItems.forEach((item) => {
-      map[item.category] = (map[item.category] ?? 0) + 1
+      map[item.kind] = (map[item.kind] ?? 0) + 1
     })
     return map
   }, [archivedItems])
@@ -44,7 +45,7 @@ export function ArchiveView({ items, onUpdate, onDelete, onBack }: ArchiveViewPr
         <div>
           <h2 className="text-base font-bold">アーカイブ</h2>
           <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            完了した「やってみよう」「イベント」「夢」を日付順に振り返れます
+            完了した「やってみよう」「夢」を日付順に振り返れます
           </p>
         </div>
         <button
@@ -57,18 +58,15 @@ export function ArchiveView({ items, onUpdate, onDelete, onBack }: ArchiveViewPr
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <FilterChip
-          active={selectedCategory === 'all'}
-          onClick={() => setSelectedCategory('all')}
-        >
+        <FilterChip active={selectedKind === 'all'} onClick={() => setSelectedKind('all')}>
           すべて {counts.all ?? 0}
         </FilterChip>
-        {CATEGORIES.filter((c) => ARCHIVABLE_CATEGORIES.includes(c.value)).map(({ value, label, bg, color }) => (
+        {ITEM_KINDS.filter((k) => ARCHIVABLE_KINDS.includes(k.value)).map(({ value, label, bg, color }) => (
           <FilterChip
             key={value}
-            active={selectedCategory === value}
-            onClick={() => setSelectedCategory(value)}
-            className={selectedCategory === value ? `${bg} ${color}` : ''}
+            active={selectedKind === value}
+            onClick={() => setSelectedKind(value)}
+            className={selectedKind === value ? `${bg} ${color}` : ''}
           >
             {label} {counts[value] ?? 0}
           </FilterChip>
@@ -135,15 +133,19 @@ function ArchiveItemCard({
   onRestore: () => void
   onDelete: () => void
 }) {
-  const meta = getCategoryMeta(item.category)
+  const kindMeta = getKindMeta(item.kind)
+  const categoryMeta = getCategoryMeta(item.category)
 
   return (
     <article className="group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-4 py-3">
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>
-              {meta.label}
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${kindMeta.bg} ${kindMeta.color}`}>
+              {kindMeta.label}
+            </span>
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${categoryMeta.bg} ${categoryMeta.color}`}>
+              {categoryMeta.label}
             </span>
           </div>
           <h3 className="font-medium leading-snug text-[var(--color-text-muted)]">{item.title}</h3>

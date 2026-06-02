@@ -1,4 +1,5 @@
-export type Category = 'work' | 'daily' | 'self' | 'event' | 'dream'
+export type Category = 'work' | 'daily' | 'self'
+export type ItemKind = 'must' | 'try' | 'dream'
 export type Status = 'todo' | 'in_progress' | 'done'
 export type Urgency = 'asap' | 'soon' | 'someday' | 'lifetime'
 
@@ -7,6 +8,7 @@ export interface Item {
   user_id: string
   title: string
   category: Category
+  kind: ItemKind
   tags: string[]
   note: string | null
   status: Status
@@ -17,5 +19,5 @@ export interface Item {
   updated_at: string
 }
 
-export type ItemInsert = Pick<Item, 'title' | 'category' | 'tags' | 'note' | 'status' | 'urgency' | 'deadline'>
+export type ItemInsert = Pick<Item, 'title' | 'category' | 'kind' | 'tags' | 'note' | 'status' | 'urgency' | 'deadline'>
 export type ItemUpdate = Partial<ItemInsert & Pick<Item, 'completed_at'>>

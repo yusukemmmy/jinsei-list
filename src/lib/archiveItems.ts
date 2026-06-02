@@ -1,22 +1,22 @@
-import type { Category, Item, ItemUpdate } from '../types/item'
+import type { Item, ItemKind, ItemUpdate } from '../types/item'
 
-export const ARCHIVABLE_CATEGORIES: Category[] = ['self', 'event', 'dream']
-export const DISPOSABLE_CATEGORIES: Category[] = ['work', 'daily']
+export const ARCHIVABLE_KINDS: ItemKind[] = ['try', 'dream']
+export const DISPOSABLE_KINDS: ItemKind[] = ['must']
 
-export function isArchivableCategory(category: Category): boolean {
-  return ARCHIVABLE_CATEGORIES.includes(category)
+export function isArchivableKind(kind: ItemKind): boolean {
+  return ARCHIVABLE_KINDS.includes(kind)
 }
 
-export function isDisposableCategory(category: Category): boolean {
-  return DISPOSABLE_CATEGORIES.includes(category)
+export function isDisposableKind(kind: ItemKind): boolean {
+  return DISPOSABLE_KINDS.includes(kind)
 }
 
 export function isArchived(item: Item): boolean {
-  return isArchivableCategory(item.category) && item.status === 'done'
+  return isArchivableKind(item.kind) && item.status === 'done'
 }
 
 export function isPendingDisposal(item: Item): boolean {
-  return isDisposableCategory(item.category) && item.status === 'done'
+  return isDisposableKind(item.kind) && item.status === 'done'
 }
 
 export function isHiddenFromList(item: Item): boolean {
@@ -30,7 +30,7 @@ export function getArchiveDate(item: Item): string {
 export function applyArchiveUpdates(item: Item | undefined, updates: ItemUpdate): ItemUpdate {
   if (!item || updates.status === undefined) return updates
 
-  if (updates.status === 'done' && isArchivableCategory(item.category)) {
+  if (updates.status === 'done' && isArchivableKind(item.kind)) {
     return { ...updates, completed_at: new Date().toISOString() }
   }
 

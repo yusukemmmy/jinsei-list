@@ -5,12 +5,13 @@ import type { Item, ItemInsert, ItemUpdate } from '../types/item'
 
 function friendlyError(message: string): string {
   if (
+    message.includes('kind') ||
     message.includes('completed_at') ||
     message.includes('urgency') ||
     message.includes('deadline') ||
     message.includes('schema cache')
   ) {
-    return 'データベースの更新が必要です。Supabase の SQL Editor で supabase/migration_add_completed_at.sql を実行してください。'
+    return 'データベースの更新が必要です。Supabase の SQL Editor で supabase/migration_add_item_kind.sql を実行してください。'
   }
   return message
 }
