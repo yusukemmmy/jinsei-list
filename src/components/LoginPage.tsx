@@ -12,7 +12,7 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
     <div className="min-h-dvh flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mb-3">人生リスト</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-3">暇つぶしリスト</h1>
           <p className="text-[var(--color-text-muted)] leading-relaxed">
             やらなきゃ・やってみよう・夢 × タクト・家・自分——<br />
             今のあなたの「やること」「やりたいこと」を<br />
@@ -48,7 +48,6 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
 
         <div className="mt-10 space-y-4 text-left">
           <div>
-            <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2">種類</p>
             <div className="grid grid-cols-3 gap-2">
               {ITEM_KINDS.map(({ value, label, bg, color }) => (
                 <div key={value} className={`rounded-xl px-3 py-2.5 text-sm font-medium text-center ${bg} ${color}`}>
@@ -57,8 +56,7 @@ export function LoginPage({ onSignIn, authError }: LoginPageProps) {
               ))}
             </div>
           </div>
-          <div>
-            <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2">カテゴリー</p>
+          <div className="border-t border-[var(--color-border)] pt-4">
             <div className="grid grid-cols-3 gap-2">
               {CATEGORIES.map(({ value, label, bg, color }) => (
                 <div key={value} className={`rounded-xl px-3 py-2.5 text-sm font-medium text-center ${bg} ${color}`}>

@@ -12,11 +12,11 @@ export function isDisposableKind(kind: ItemKind): boolean {
 }
 
 export function isArchived(item: Item): boolean {
-  return isArchivableKind(item.kind) && item.status === 'done'
+  return item.status === 'done' && !isPendingDisposal(item)
 }
 
 export function isPendingDisposal(item: Item): boolean {
-  return isDisposableKind(item.kind) && item.status === 'done'
+  return isDisposableKind(item.kind) && item.status === 'done' && item.completed_at == null
 }
 
 export function isHiddenFromList(item: Item): boolean {

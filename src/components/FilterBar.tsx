@@ -27,7 +27,6 @@ export function FilterBar({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5">種類</p>
         <div className="flex flex-wrap gap-2">
           <FilterChip active={selectedKind === 'all'} onClick={() => onKindChange('all')}>
             すべて
@@ -45,8 +44,7 @@ export function FilterBar({
         </div>
       </div>
 
-      <div>
-        <p className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5">カテゴリー</p>
+      <div className="border-t border-[var(--color-border)] pt-3">
         <div className="flex flex-wrap gap-2">
           <FilterChip
             active={selectedCategory === 'all'}

@@ -3,6 +3,7 @@ import type { Category, Item, ItemKind, Status, Urgency } from '../types/item'
 import { CATEGORIES, STATUSES, getCategoryMeta, getStatusLabel, parseTags, formatTags } from '../constants/categories'
 import { ITEM_KINDS, getKindMeta } from '../constants/kinds'
 import { URGENCIES, formatDeadline, getUrgencyMeta } from '../constants/urgency'
+import { parseMessageToDraft } from '../lib/parseMessageApi'
 
 interface ItemFormData {
   title: string
@@ -33,8 +34,38 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
   const [deadline, setDeadline] = useState(initial?.deadline ?? '')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [sourceText, setSourceText] = useState('')
+  const [parsing, setParsing] = useState(false)
+  const [parseError, setParseError] = useState<string | null>(null)
 
   const hasDeadline = deadline.trim() !== ''
+  const isCreate = !initial
+
+  const handleParseMessage = async () => {
+    if (!sourceText.trim() || parsing) return
+
+    setParsing(true)
+    setParseError(null)
+    try {
+      const draft = await parseMessageToDraft(sourceText)
+      setTitle(draft.title)
+      setNote(draft.note)
+      if (isCreate) {
+        setKind('must')
+        setCategory('work')
+      }
+      if (draft.deadline) {
+        setDeadline(draft.deadline)
+      } else {
+        setDeadline('')
+        setUrgency(draft.urgency ?? 'soon')
+      }
+    } catch (error) {
+      setParseError(error instanceof Error ? error.message : '解釈に失敗しました')
+    } finally {
+      setParsing(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,6 +99,8 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
       setStatus('todo')
       setUrgency('soon')
       setDeadline('')
+      setSourceText('')
+      setParseError(null)
     }
   }
 
@@ -80,6 +113,40 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
           : 'rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-5 space-y-4'
       }
     >
+      {isCreate && (
+        <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-3 space-y-2">
+          <label htmlFor="item-source" className="block text-xs font-medium text-[var(--color-text-muted)]">
+            メッセージから作成（任意）
+          </label>
+          <textarea
+            id="item-source"
+            value={sourceText}
+            onChange={(e) => setSourceText(e.target.value)}
+            placeholder="Chatworkなどのメッセージを貼り付け…"
+            rows={4}
+            className="w-full text-sm bg-[var(--color-surface-elevated)] rounded-lg px-3 py-2 outline-none border border-[var(--color-border)] focus:border-[var(--color-text-muted)] resize-y placeholder:text-[var(--color-text-muted)]/60"
+          />
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-[var(--color-text-muted)]">
+              AIがタイトル・メモ・期限の下書きを作ります
+            </p>
+            <button
+              type="button"
+              onClick={handleParseMessage}
+              disabled={!sourceText.trim() || parsing}
+              className="shrink-0 text-sm px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-elevated)] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {parsing ? '解釈中…' : '解釈する'}
+            </button>
+          </div>
+          {parseError && (
+            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {parseError}
+            </p>
+          )}
+        </div>
+      )}
+
       <div>
         <label htmlFor="item-title" className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
           タイトル（必須）
@@ -96,9 +163,6 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
       </div>
 
       <div>
-        <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
-          種類
-        </span>
         <div className="flex flex-wrap gap-2">
           {ITEM_KINDS.map(({ value, label, bg, color }) => (
             <button
@@ -117,10 +181,7 @@ export function ItemForm({ onSubmit, initial, onCancel, embedded = false }: Item
         </div>
       </div>
 
-      <div>
-        <span className="block text-xs font-medium text-[var(--color-text-muted)] mb-1.5">
-          カテゴリー
-        </span>
+      <div className="border-t border-[var(--color-border)] pt-4">
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map(({ value, label, bg, color }) => (
             <button

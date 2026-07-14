@@ -70,6 +70,18 @@ export function usePendingDisposal({ onDelete, onUpdate }: UsePendingDisposalOpt
     [clearTimer, onUpdate],
   )
 
+  const archiveDisposal = useCallback(
+    async (id: string) => {
+      const entry = pendingRef.current.find((p) => p.id === id)
+      if (!entry) return
+
+      clearTimer(id)
+      setPending((prev) => prev.filter((p) => p.id !== id))
+      await onUpdate(id, { completed_at: new Date().toISOString() })
+    },
+    [clearTimer, onUpdate],
+  )
+
   useEffect(() => {
     const timers = timersRef.current
     return () => {
@@ -78,5 +90,5 @@ export function usePendingDisposal({ onDelete, onUpdate }: UsePendingDisposalOpt
     }
   }, [])
 
-  return { pending, scheduleDisposal, undoDisposal, removePending }
+  return { pending, scheduleDisposal, undoDisposal, archiveDisposal, removePending }
 }

@@ -27,7 +27,7 @@ export function Header({
     <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-surface)]/90 backdrop-blur-sm">
       <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-bold">人生リスト</h1>
+          <h1 className="text-lg font-bold">暇つぶしリスト</h1>
           <p className="text-xs text-[var(--color-text-muted)]">{itemCount} 件</p>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-3">

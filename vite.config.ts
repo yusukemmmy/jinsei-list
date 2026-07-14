@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { handleChatRequest } from './api/chatHandler'
+import { handleParseMessageRequest } from './api/parseMessageHandler'
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
@@ -25,12 +26,13 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
   })
 }
 
-function chatApiPlugin(env: Record<string, string>): Plugin {
+function localApiPlugin(env: Record<string, string>): Plugin {
   return {
-    name: 'chat-api',
+    name: 'local-api',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url !== '/api/chat') {
+        const path = req.url?.split('?')[0]
+        if (path !== '/api/chat' && path !== '/api/parse-message') {
           next()
           return
         }
@@ -46,10 +48,18 @@ function chatApiPlugin(env: Record<string, string>): Plugin {
 
         try {
           const body = await readJsonBody(req)
-          const result = await handleChatRequest(req.headers.authorization, body as Parameters<typeof handleChatRequest>[1])
+          const result = path === '/api/parse-message'
+            ? await handleParseMessageRequest(
+              req.headers.authorization,
+              body as Parameters<typeof handleParseMessageRequest>[1],
+            )
+            : await handleChatRequest(
+              req.headers.authorization,
+              body as Parameters<typeof handleChatRequest>[1],
+            )
           sendJson(res, result.status, result.body)
         } catch (error) {
-          console.error('Chat API error:', error)
+          console.error('Local API error:', error)
           sendJson(res, 500, { error: 'サーバーエラーが発生しました' })
         }
       })
@@ -67,6 +77,6 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [react(), tailwindcss(), chatApiPlugin(env)],
+    plugins: [react(), tailwindcss(), localApiPlugin(env)],
   }
 })

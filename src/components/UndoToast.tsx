@@ -5,15 +5,21 @@ import { DISPOSAL_UNDO_MS } from '../hooks/usePendingDisposal'
 interface UndoToastProps {
   pending: PendingDisposal[]
   onUndo: (id: string) => void
+  onArchive: (id: string) => void
 }
 
-export function UndoToast({ pending, onUndo }: UndoToastProps) {
+export function UndoToast({ pending, onUndo, onArchive }: UndoToastProps) {
   if (pending.length === 0) return null
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-30 flex flex-col gap-2 max-w-3xl mx-auto pointer-events-none">
       {pending.map((entry) => (
-        <UndoToastItem key={entry.id} entry={entry} onUndo={() => onUndo(entry.id)} />
+        <UndoToastItem
+          key={entry.id}
+          entry={entry}
+          onUndo={() => onUndo(entry.id)}
+          onArchive={() => onArchive(entry.id)}
+        />
       ))}
     </div>
   )
@@ -22,9 +28,11 @@ export function UndoToast({ pending, onUndo }: UndoToastProps) {
 function UndoToastItem({
   entry,
   onUndo,
+  onArchive,
 }: {
   entry: PendingDisposal
   onUndo: () => void
+  onArchive: () => void
 }) {
   const [remainingMs, setRemainingMs] = useState(() => Math.max(0, entry.expiresAt - Date.now()))
 
@@ -46,13 +54,22 @@ function UndoToastItem({
           <span className="text-[var(--color-text-muted)]">完了:</span>{' '}
           <span className="font-medium">{entry.title}</span>
         </p>
-        <button
-          type="button"
-          onClick={onUndo}
-          className="text-sm font-medium px-3 py-1.5 rounded-lg bg-[var(--color-text)] text-white hover:opacity-90 transition-opacity cursor-pointer shrink-0"
-        >
-          元に戻す
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onArchive}
+            className="text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-[var(--color-text-muted)] transition-colors cursor-pointer"
+          >
+            アーカイブ
+          </button>
+          <button
+            type="button"
+            onClick={onUndo}
+            className="text-sm font-medium px-3 py-1.5 rounded-lg bg-[var(--color-text)] text-white hover:opacity-90 transition-opacity cursor-pointer"
+          >
+            元に戻す
+          </button>
+        </div>
       </div>
       <div className="mt-2 h-0.5 rounded-full bg-[var(--color-border)] overflow-hidden">
         <div

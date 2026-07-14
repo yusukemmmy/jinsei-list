@@ -45,7 +45,7 @@ export function Dashboard({
   const [view, setView] = useState<View>('list')
   const chat = useChat(items)
 
-  const { pending, scheduleDisposal, undoDisposal } = usePendingDisposal({
+  const { pending, scheduleDisposal, undoDisposal, archiveDisposal } = usePendingDisposal({
     onDelete,
     onUpdate,
   })
@@ -207,7 +207,7 @@ export function Dashboard({
 
       {view === 'list' && (
         <>
-          <UndoToast pending={pending} onUndo={undoDisposal} />
+          <UndoToast pending={pending} onUndo={undoDisposal} onArchive={archiveDisposal} />
           <ChatFab onClick={() => chat.setOpen(true)} hidden={chat.open} />
           <ChatPanel
             open={chat.open}
