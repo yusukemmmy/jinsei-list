@@ -131,8 +131,14 @@ export async function handleParseMessageRequest(
     const geminiRes = await callGemini(model, geminiKey, systemText, contents)
 
     if (geminiRes.ok) {
-      const data = (await geminiRes.json()) as {
+      let data: {
         candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[]
+      }
+      try {
+        data = (await geminiRes.json()) as typeof data
+      } catch {
+        lastErrorText = 'empty response'
+        continue
       }
       const raw = data.candidates?.[0]?.content?.parts?.[0]?.text
 

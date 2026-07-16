@@ -27,12 +27,23 @@ export async function parseMessageToDraft(text: string): Promise<ParsedItemDraft
     body: JSON.stringify({ text }),
   })
 
-  const data = (await res.json()) as {
+  const raw = await res.text()
+  let data: {
     title?: string
     note?: string
     deadline?: string | null
     urgency?: Urgency | null
     error?: string
+  } = {}
+
+  if (raw) {
+    try {
+      data = JSON.parse(raw) as typeof data
+    } catch {
+      throw new Error('サーバーからの応答を読み取れませんでした')
+    }
+  } else if (!res.ok) {
+    throw new Error('サーバーに接続できませんでした')
   }
 
   if (!res.ok) {
